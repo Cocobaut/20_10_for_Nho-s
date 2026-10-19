@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gửi Nho iu dấu 💖 20/10</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Dancing+Script:wght@700&family=Quicksand:wght@500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      min-height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      font-family: 'Quicksand', 'Comfortaa', sans-serif;
+      background: radial-gradient(circle at center, #ffe6eb, #ffd1dc, #fbc4d2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Canvas vẽ hoa nền tự động */
+    #flowerCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Container chứa các nội dung */
+    .container {
+      position: relative;
+      z-index: 50;
+      width: 90%;
+      max-width: 520px;
+      padding: 35px 25px;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 28px;
+      box-shadow: 0 15px 35px rgba(255, 130, 160, 0.25), 0 5px 15px rgba(0, 0, 0, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      text-align: center;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.92);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    h2.question {
+      font-size: 1.55rem;
+      color: #d83a56;
+      margin-bottom: 25px;
+      line-height: 1.45;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(216, 58, 86, 0.1);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      min-height: 70px;
+      position: relative;
+    }
+
+    button {
+      padding: 12px 34px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+      font-family: inherit;
+    }
+
+    .btn-yes {
+      background: linear-gradient(135deg, #ff6584, #ff4270);
+      color: #fff;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+      position: relative;
+      z-index: 100;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-yes:hover {
+      box-shadow: 0 10px 24px rgba(255, 66, 112, 0.45);
+    }
+
+    .btn-no {
+      background: #ffffff;
+      color: #888;
+      border: 2px solid #ffccd7;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), left 0.25s ease, top 0.25s ease;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-no.teleport {
+      position: fixed !important;
+      z-index: 999999 !important;
+      transform-origin: top left;
+    }
+
+    /* Màn 3: Trang cuối cùng */
+    .screen-final {
+      padding: 10px;
+    }
+
+    .final-heart-icon {
+      font-size: 3rem;
+      animation: beat 1.2s infinite ease-in-out;
+      margin-bottom: 15px;
+    }
+
+    @keyframes beat {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.25);
+      }
+    }
+
+    .final-message {
+      font-size: 1.35rem;
+      line-height: 1.7;
+      color: #c42b4e;
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-family: 'Comfortaa', cursive, sans-serif;
+    }
+
+    .signature {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.2rem;
+      color: #e0285a;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    /* Sticker Shin đáng thương spawn ngẫu nhiên */
+    .shin-item {
+      position: fixed;
+      pointer-events: none;
+      z-index: 30;
+      border-radius: 20px;
+      background: #ffffff;
+      padding: 6px;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2), 0 4px 10px rgba(255, 105, 135, 0.25);
+      border: 3.5px solid #ffffff;
+      object-fit: contain;
+      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0) rotate(var(--rot, 0deg));
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1) rotate(var(--rot, 0deg));
+        opacity: 1;
+      }
+    }
+
+    /* Trái tim bay nền ở trang 3 */
+    .floating-heart {
+      position: fixed;
+      bottom: -40px;
+      color: #ff6584;
+      pointer-events: none;
+      z-index: 5;
+      animation: floatUp linear forwards;
+    }
+
+    /* Ảnh kỷ niệm trang cuối từ picture_last_one */
+    .last-photo-item {
+      position: fixed;
+      pointer-events: auto;
+      z-index: 20;
+      object-fit: cover;
+      border-radius: 14px;
+      background: #ffffff;
+      padding: 4px;
+      border: 3px solid #ffffff;
+      box-shadow: 0 10px 24px rgba(230, 50, 100, 0.22), 0 4px 10px rgba(0, 0, 0, 0.1);
+      animation: polaroidPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, z-index 0.3s;
+      cursor: pointer;
+    }
+
+    .last-photo-item:hover {
+      transform: scale(1.35) rotate(0deg) !important;
+      z-index: 90 !important;
+      box-shadow: 0 18px 40px rgba(220, 40, 90, 0.45);
+    }
+
+    @keyframes polaroidPop {
+      0% {
+        opacity: 0;
+        transform: scale(0.2) rotate(var(--rot, 0deg));
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1) rotate(var(--rot, 0deg));
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Canvas vẽ hoa tự động -->
+  <canvas id="flowerCanvas"></canvas>
+
+  <div class="container">
+    <!-- MÀN 1 -->
+    <div id="screen1" class="screen active">
+      <div style="font-size: 2.5rem; margin-bottom: 12px;">🌸✨</div>
+      <h2 class="question">Nho có siêu iu Nguyễn Hồ Quang Cải Không</h2>
+      <div class="btn-group">
+        <button class="btn-yes" id="btnYes1" onclick="nextScreen(2)">Có</button>
+        <button class="btn-no" id="btnNo1" onclick="handleNoButtonClick(1, this)">Không</button>
+      </div>
+    </div>
+
+    <!-- MÀN 2 -->
+    <div id="screen2" class="screen">
+      <div style="font-size: 2.5rem; margin-bottom: 12px;">🥺👉👈</div>
+      <h2 class="question">Nho đừng giận cải tưởng nha</h2>
+      <div class="btn-group">
+        <button class="btn-yes" id="btnYes2" onclick="nextScreen(3)">Ó kè</button>
+        <button class="btn-no" id="btnNo2" onclick="handleNoButtonClick(2, this)">Không</button>
+      </div>
+    </div>
+
+    <!-- MÀN 3: LỜI CHÚC CUỐI -->
+    <div id="screen3" class="screen screen-final">
+      <div class="final-heart-icon">💖💐🎁</div>
+      <p class="final-message">
+        "Chúc nho 20/10 thật dui dẻ, cải là cải siu iu nho nhiều lắm luôn á, cải hy vọng hôm nay nho sẽ có một ngày thật
+        hạnh phúc, cải cảm ơn vì mọi thứ trong thời gian vừa qua. Anh yêu e (From người iu nho nhất hệ mặt trời)"
+      </p>
+      <div class="signature">Nguyễn Hồ Quang Cải 💕</div>
+    </div>
+  </div>
+
+  <script>
+    /* ================= 1. VẼ BÔNG HOA NÉT TỰ ĐỘNG BẰNG CANVAS ================= */
+    const canvas = document.getElementById('flowerCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let flowerAngle = 0;
+    let petals = 7;
+    let maxRadius = Math.min(width, height) * 0.38;
+
+    function drawFlower() {
+      ctx.clearRect(0, 0, width, height);
+
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+
+      ctx.beginPath();
+      ctx.lineWidth = 2.2;
+      ctx.strokeStyle = "rgba(255, 105, 135, 0.35)";
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = "rgba(255, 80, 120, 0.4)";
+
+      for (let theta = 0; theta < flowerAngle; theta += 0.04) {
+        let r = maxRadius * Math.sin(petals * theta * 0.4) * Math.sin(theta * 0.8);
+        let x = r * Math.cos(theta);
+        let y = r * Math.sin(theta);
+        if (theta === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      if (flowerAngle < Math.PI * 20) {
+        flowerAngle += 0.06;
+      }
+
+      requestAnimationFrame(drawFlower);
+    }
+    drawFlower();
+
+    /* ================= 2. LOGIC ẢNH STICKER TỪ THƯ MỤC "picture/" ================= */
+    // Danh sách các ảnh hiện có trong folder E:\20_10\picture
+    // Bạn có thể thêm vô số tên file ảnh vào mảng này bất cứ lúc nào!
+    const PICTURE_LIST = [
+      '3d25fdb6faa6dadd004a2088f9e5f582.jpg',
+      '78a67a2728769587fbbdcdd5c87dadb6.jpg',
+      '7fe2cd43a8fba0382498d2c71f60de57.jpg',
+      'b3efaac7f0e8e50f00108c221859a2f9.jpg',
+      'bb1c759a858666d63409e54af945cc69.jpg',
+      'e2ab883836fe7f3bd5f0db8ee224e945.jpg',
+      'shin_dang_thuong_1.jpg',
+      'shin_dang_thuong_2.jpg',
+      'shin_dang_thuong_3.jpg',
+      'shin_dang_thuong_4.jpg',
+      'shin_dang_thuong_5.jpg',
+      'shin_dang_thuong_6.jpg',
+      'shin_dang_thuong_7.jpg',
+      'shin_dang_thuong_8.jpg',
+      'shin_dang_thuong_9.jpg',
+      'shn_dang_thuong_4.jpg'
+    ];
+
+    // Mảng lưu danh sách ảnh đang hoạt động
+    let activePictures = [...PICTURE_LIST];
+
+    // Tự động quét và nạp thêm các ảnh đặt tên dạng số (1.jpg, 2.jpg... hoặc shin_dang_thuong_10.jpg...)
+    function autoDetectNumberedPictures() {
+      const extensions = ['jpg', 'png', 'jpeg', 'webp'];
+      for (let i = 1; i <= 100; i++) {
+        extensions.forEach(ext => {
+          const testName = `${i}.${ext}`;
+          if (!activePictures.includes(testName)) {
+            const probe = new Image();
+            probe.onload = function () {
+              if (!activePictures.includes(testName)) {
+                activePictures.push(testName);
+              }
+            };
+            probe.src = `picture/${testName}`;
+          }
+        });
+      }
+      for (let i = 10; i <= 50; i++) {
+        extensions.forEach(ext => {
+          const testName = `shin_dang_thuong_${i}.${ext}`;
+          if (!activePictures.includes(testName)) {
+            const probe = new Image();
+            probe.onload = function () {
+              if (!activePictures.includes(testName)) {
+                activePictures.push(testName);
+              }
+            };
+            probe.src = `picture/${testName}`;
+          }
+        });
+      }
+    }
+    autoDetectNumberedPictures();
+
+    let noClickCounts = { 1: 0, 2: 0 };
+
+    function handleNoButtonClick(screenNum, btn) {
+      noClickCounts[screenNum] = (noClickCounts[screenNum] || 0) + 1;
+      const count = noClickCounts[screenNum];
+      const yesBtn = document.getElementById(`btnYes${screenNum}`);
+
+      // 1. Tính kích thước sticker mới: gấp đôi kích thước cũ, tối đa ~1/4 tỉ lệ màn hình
+      const maxDim = Math.min(window.innerWidth, window.innerHeight);
+      const maxStickerSize = Math.max(180, Math.floor(maxDim / 4));
+
+      // Kích thước xuất phát gấp đôi (~96px), mỗi lần bấm tăng dần cho tới khi chạm trần
+      const startSize = Math.min(96, Math.floor(maxStickerSize * 0.45));
+      const targetSize = Math.min(maxStickerSize, startSize + (count - 1) * 32);
+
+      // Thêm 2 đến 3 sticker mới vào màn hình (KHÔNG XÓA sticker cũ cùng trang)
+      const spawnAmount = Math.floor(Math.random() * 2) + 2;
+      for (let i = 0; i < spawnAmount; i++) {
+        const jitter = Math.floor(Math.random() * 20) - 10;
+        const currentSize = Math.max(80, Math.min(maxStickerSize, targetSize + jitter));
+        createShinImage(currentSize);
+      }
+
+      // Cập nhật nội dung chữ của nút "Không" theo từng lần click
+      if (count === 1) {
+        btn.innerText = "khôngg";
+      } else if (count === 2) {
+        btn.innerText = "khôngg 😭😭😭😭";
+      } else if (count === 3) {
+        btn.innerText = "khôngggg /_ \\ 😭😭😭";
+      } else if (count === 4) {
+        btn.innerText = "đừng click nữa mà  /_ \\ 😭😭😭";
+      } else if (count === 5) {
+        btn.innerText = "click nữa thì nho thành nho thúi  😭😭😭";
+      } else {
+        btn.innerText = "nho thúi 😭";
+      }
+
+      // 2. Nút Yes (hoặc Ó kè) to dần lên theo từng lần bấm, luôn ở lớp cao nhất trên sticker
+      const yesScale = 1 + count * 0.16;
+      yesBtn.style.transform = `scale(${yesScale})`;
+      yesBtn.style.zIndex = '100';
+
+      // Cập nhật chữ của nút "Có" (trang 1) hoặc "Ó kè" (trang 2)
+      if (screenNum === 1) {
+        if (count === 1) {
+          yesBtn.innerText = "cóo";
+        } else if (count === 2) {
+          yesBtn.innerText = "cóoo";
+        } else if (count === 3) {
+          yesBtn.innerText = "cóooo";
+        } else if (count === 4) {
+          yesBtn.innerText = "cóoooo";
+        } else if (count >= 5) {
+          yesBtn.innerText = "cóooooo (đáp án đây nè)";
+        }
+      } else if (screenNum === 2) {
+        if (count === 1) {
+          yesBtn.innerText = "ó kèe";
+        } else if (count === 2) {
+          yesBtn.innerText = "ó kèee";
+        } else if (count === 3) {
+          yesBtn.innerText = "ó kèeee";
+        } else if (count === 4) {
+          yesBtn.innerText = "ó kèeeee";
+        } else if (count >= 5) {
+          yesBtn.innerText = "ó kèeeeee (đáp án đây nè) 😭😭😭";
+        }
+      }
+
+      // 3. Nút Không nhỏ dần nhưng luôn bấm được vô số lần (không bao giờ biến mất)
+      const noScale = Math.max(0.42, 1 / (1 + count * 0.09));
+
+      // Đưa nút ra document.body để position: fixed tính chuẩn theo viewport, không bị kẹt trong container
+      if (btn.parentElement !== document.body) {
+        document.body.appendChild(btn);
+      }
+      btn.classList.add('teleport');
+
+      // Tính toạ độ an toàn 100% bên trong màn hình, không bao giờ bay ra ngoài
+      const padding = 20;
+      const btnW = (btn.offsetWidth || 110) * noScale;
+      const btnH = (btn.offsetHeight || 50) * noScale;
+
+      const maxX = Math.max(padding, window.innerWidth - btnW - padding);
+      const maxY = Math.max(padding, window.innerHeight - btnH - padding);
+
+      const randomX = Math.floor(Math.random() * (maxX - padding)) + padding;
+      const randomY = Math.floor(Math.random() * (maxY - padding)) + padding;
+
+      btn.style.left = `${randomX}px`;
+      btn.style.top = `${randomY}px`;
+      btn.style.transform = `scale(${noScale})`;
+      btn.style.zIndex = '999999'; // Luôn nổi lên trên cùng để có thể bấm tiếp
+    }
+
+    function createShinImage(size) {
+      if (!activePictures || activePictures.length === 0) return;
+
+      const img = document.createElement('img');
+      const randomPicture = activePictures[Math.floor(Math.random() * activePictures.length)];
+      img.src = `picture/${randomPicture}`;
+      img.className = 'shin-item';
+
+      // Chống lỗi triệt để: nếu một ảnh bất kỳ bị xóa hoặc lỗi tải, tự động thay thế bằng ảnh khác hoặc ẩn, không bao giờ vỡ giao diện
+      let retryCount = 0;
+      img.onerror = function () {
+        retryCount++;
+        const failedName = this.src.split('/').pop();
+        activePictures = activePictures.filter(p => p !== failedName);
+
+        if (retryCount <= 3 && activePictures.length > 0) {
+          const fallback = activePictures[Math.floor(Math.random() * activePictures.length)];
+          this.src = `picture/${fallback}`;
+        } else {
+          this.remove();
+        }
+      };
+
+      const padding = 15;
+      const maxX = Math.max(padding, window.innerWidth - size - padding);
+      const maxY = Math.max(padding, window.innerHeight - size - padding);
+      const x = Math.floor(Math.random() * (maxX - padding)) + padding;
+      const y = Math.floor(Math.random() * (maxY - padding)) + padding;
+      const deg = Math.floor(Math.random() * 50) - 25; // Xoay -25deg đến 25deg
+
+      img.style.setProperty('--rot', `${deg}deg`);
+      img.style.left = `${x}px`;
+      img.style.top = `${y}px`;
+      img.style.width = `${size}px`;
+      img.style.height = `${size}px`;
+
+      document.body.appendChild(img);
+    }
+
+    /* ================= 3. CHUYỂN MÀN HÌNH ================= */
+    function clearAllStickers() {
+      document.querySelectorAll('.shin-item').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'scale(0.3)';
+        setTimeout(() => el.remove(), 400);
+      });
+    }
+
+    function nextScreen(screenNum) {
+      // Xóa sạch toàn bộ sticker hiện có khi chuyển sang bất kỳ trang mới nào
+      clearAllStickers();
+
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const next = document.getElementById(`screen${screenNum}`);
+      if (next) next.classList.add('active');
+
+      // Nếu chuyển từ màn 1 sang màn 2: ẩn nút No của màn 1
+      if (screenNum === 2) {
+        const btnNo1 = document.getElementById('btnNo1');
+        if (btnNo1) btnNo1.style.display = 'none';
+      }
+
+      // Nếu tới màn cuối cùng: Bật hiệu ứng background lãng mạn và hiện ảnh kỷ niệm
+      if (screenNum === 3) {
+        // Ẩn tất cả nút Không còn sót lại
+        document.querySelectorAll('.btn-no').forEach(btn => btn.style.display = 'none');
+
+        startRomanticScene();
+        showLastPhotos();
+      }
+    }
+
+    /* ================= 4. HIỆN ẢNH KỶ NIỆM Ở TRANG CUỐI (BAO QUANH KHUNG TRẮNG) ================= */
+    // Danh sách 18 ảnh hiện có trong folder E:\20_10\picture_last_one
+    // Bạn có thể thêm vô số tên file ảnh vào mảng này bất cứ lúc nào!
+    const LAST_PICTURE_LIST = [
+      '1792432359564_2274607720541907000_5984944889857817511_9ffa6c6cceb8886c8e8c401322233510.jpg',
+      '1792432359605_2274607720541907000_5984944889857817511_e939ddd3854b207bbaf61c9d4331f002.jpg',
+      '1792432359627_2274607720541907000_5984944889857817511_f26927945f35ed5119e65cf4177bdcb3.jpg',
+      '1792432359645_2274607720541907000_5984944889857817511_300087255a13b8e9b6e0a6051c4138a8.jpg',
+      '1792432359659_2274607720541907000_5984944889857817511_fc5c6d80e799242df4fbf26cfedd9a0f.jpg',
+      '1792432359672_2274607720541907000_5984944889857817511_acf6981051f15f23f17a1a31b03b8ea1.jpg',
+      '1792432359681_2274607720541907000_5984944889857817511_6b80f805293552fb1a34eef3ca57222f.jpg',
+      '1792432359691_2274607720541907000_5984944889857817511_03a55efe9115a34ea5ed2f4ee9c6725a.jpg',
+      '1792432359701_2274607720541907000_5984944889857817511_64ff37dde6ca1844af50a6a6edcd3f89.jpg',
+      '1792432359712_2274607720541907000_5984944889857817511_87b210bee5e76b7ef8ddc7dbb113204a.jpg',
+      '1792432359723_2274607720541907000_5984944889857817511_2600397998d82b23a9ba87ce1c288b52.jpg',
+      '1792432359735_2274607720541907000_5984944889857817511_79b42164da47ba8eb273c6e8ca6f9317.jpg',
+      '1792432359747_2274607720541907000_5984944889857817511_e31a52d827632b1ce3a1dedf3d680791.jpg',
+      '1792432359758_2274607720541907000_5984944889857817511_23e70a048c0dfb17da15e887543e6117.jpg',
+      '1792432359769_2274607720541907000_5984944889857817511_6c50958208155c4447ef606b85c4a004.jpg',
+      '1792432359778_2274607720541907000_5984944889857817511_783ad8f46195413d0c4efbe8715fc7a0.jpg',
+      '1792432359787_2274607720541907000_5984944889857817511_6b8403bc0e4b71aed89755c7bbb0a6f9.jpg',
+      '1792432359798_2274607720541907000_5984944889857817511_a18365e36b5720272dc88f38e0199ad6.jpg'
+    ];
+
+    let activeLastPictures = [...LAST_PICTURE_LIST];
+
+    // Tự động quét và nạp thêm các ảnh đặt tên dạng số (1.jpg, 2.jpg... trong folder picture_last_one/)
+    function autoDetectNumberedLastPictures() {
+      const extensions = ['jpg', 'png', 'jpeg', 'webp'];
+      for (let i = 1; i <= 50; i++) {
+        extensions.forEach(ext => {
+          const testName = `${i}.${ext}`;
+          if (!activeLastPictures.includes(testName)) {
+            const probe = new Image();
+            probe.onload = function () {
+              if (!activeLastPictures.includes(testName)) {
+                activeLastPictures.push(testName);
+              }
+            };
+            probe.src = `picture_last_one/${testName}`;
+          }
+        });
+      }
+    }
+    autoDetectNumberedLastPictures();
+
+    function showLastPhotos() {
+      // Dọn sạch ảnh cũ nếu có
+      document.querySelectorAll('.last-photo-item').forEach(el => el.remove());
+
+      const container = document.querySelector('.container');
+      const containerRect = container.getBoundingClientRect();
+      const buffer = 18; // Khoảng cách an toàn tuyệt đối với khung trắng (không chạm khung)
+      const margin = 10;
+
+      const minDim = Math.min(window.innerWidth, window.innerHeight);
+      const photoSize = Math.max(75, Math.min(125, Math.floor(minDim * 0.16)));
+
+      // 4 Vùng bao quanh khung trắng:
+      const zones = [];
+
+      // Vùng Trái
+      const leftMaxX = containerRect.left - photoSize - buffer;
+      if (leftMaxX >= margin) {
+        zones.push({
+          type: 'left',
+          minX: margin,
+          maxX: leftMaxX,
+          minY: margin,
+          maxY: window.innerHeight - photoSize - margin
+        });
+      }
+
+      // Vùng Phải
+      const rightMinX = containerRect.right + buffer;
+      const rightMaxX = window.innerWidth - photoSize - margin;
+      if (rightMaxX >= rightMinX) {
+        zones.push({
+          type: 'right',
+          minX: rightMinX,
+          maxX: rightMaxX,
+          minY: margin,
+          maxY: window.innerHeight - photoSize - margin
+        });
+      }
+
+      // Vùng Trên
+      const topMaxY = containerRect.top - photoSize - buffer;
+      if (topMaxY >= margin) {
+        zones.push({
+          type: 'top',
+          minX: margin,
+          maxX: window.innerWidth - photoSize - margin,
+          minY: margin,
+          maxY: topMaxY
+        });
+      }
+
+      // Vùng Dưới
+      const bottomMinY = containerRect.bottom + buffer;
+      const bottomMaxY = window.innerHeight - photoSize - margin;
+      if (bottomMaxY >= bottomMinY) {
+        zones.push({
+          type: 'bottom',
+          minX: margin,
+          maxX: window.innerWidth - photoSize - margin,
+          minY: bottomMinY,
+          maxY: bottomMaxY
+        });
+      }
+
+      if (zones.length === 0) return;
+
+      // Chia đều các ảnh vào các vùng an toàn
+      const zoneBuckets = zones.map(() => []);
+      activeLastPictures.forEach((pic, idx) => {
+        const zoneIdx = idx % zones.length;
+        zoneBuckets[zoneIdx].push(pic);
+      });
+
+      let globalIdx = 0;
+      zones.forEach((zone, zIdx) => {
+        const bucket = zoneBuckets[zIdx];
+        const count = bucket.length;
+        if (count === 0) return;
+
+        bucket.forEach((picName, k) => {
+          let x, y;
+          const ratio = count === 1 ? 0.5 : k / (count - 1);
+
+          if (zone.type === 'left' || zone.type === 'right') {
+            const jitterY = (Math.random() * 24 - 12);
+            y = zone.minY + ratio * (zone.maxY - zone.minY) + jitterY;
+            x = zone.minX + Math.random() * (zone.maxX - zone.minX);
+          } else {
+            // top hoặc bottom: phân bố theo trục X
+            const jitterX = (Math.random() * 24 - 12);
+            x = zone.minX + ratio * (zone.maxX - zone.minX) + jitterX;
+            y = zone.minY + Math.random() * (zone.maxY - zone.minY);
+          }
+
+          // Kẹp toạ độ chắc chắn trong vùng cho phép, đảm bảo không bao giờ đè lên khung trắng
+          x = Math.max(zone.minX, Math.min(zone.maxX, x));
+          y = Math.max(zone.minY, Math.min(zone.maxY, y));
+
+          const img = document.createElement('img');
+          img.className = 'last-photo-item';
+          img.src = `picture_last_one/${picName}`;
+          img.style.width = `${photoSize}px`;
+          img.style.height = `${photoSize}px`;
+          img.style.left = `${Math.round(x)}px`;
+          img.style.top = `${Math.round(y)}px`;
+
+          const deg = Math.floor(Math.random() * 26) - 13; // Xoay nhẹ -13deg đến +13deg
+          img.style.setProperty('--rot', `${deg}deg`);
+          img.style.animationDelay = `${globalIdx * 70}ms`;
+
+          // Tự động bỏ qua nếu ảnh lỗi
+          img.onerror = function () {
+            this.remove();
+          };
+
+          document.body.appendChild(img);
+          globalIdx++;
+        });
+      });
+    }
+
+    // Tự động sắp xếp lại vị trí an toàn nếu thay đổi kích thước cửa sổ
+    window.addEventListener('resize', () => {
+      const screen3 = document.getElementById('screen3');
+      if (screen3 && screen3.classList.contains('active')) {
+        showLastPhotos();
+      }
+    });
+
+    /* ================= 5. HIỆU ỨNG MÀN CUỐI LÃNG MẠN ================= */
+    function startRomanticScene() {
+      document.body.style.background = 'radial-gradient(circle at center, #ffe0e9, #ffb8ca, #ff9eb7)';
+
+      // Thả tim và cánh hoa bay bổng liên tục
+      setInterval(() => {
+        const heart = document.createElement('div');
+        heart.className = 'floating-heart';
+        const icons = ['💖', '🌸', '✨', '💕', '🌷', '🥰', '🌹'];
+        heart.innerText = icons[Math.floor(Math.random() * icons.length)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.fontSize = (Math.random() * 22 + 18) + 'px';
+        heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+        document.body.appendChild(heart);
+
+        setTimeout(() => heart.remove(), 6000);
+      }, 250);
+    }
+  </script>
+</body>
+
+</html>
